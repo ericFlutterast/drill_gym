@@ -62,6 +62,7 @@ class AddWorkoutOnCalendarViewController: UIViewController{
     
     @objc private func createWorkout() {
         guard let navigationController = navigationController else{return}
+        
         self.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(CreateWorkoutViewController(), animated: true)
     }
@@ -111,7 +112,7 @@ private final class WorkoutCell: UICollectionViewCell{
     private lazy var title = {
         let lable = UILabel()
         lable.text = NSLocalizedString("Workout if back", comment: "workout if back")
-        lable.textColor = .systemYellow
+        lable.textColor = .white
         lable.translatesAutoresizingMaskIntoConstraints = false
         lable.textAlignment = .left
         lable.numberOfLines = 0
@@ -141,7 +142,7 @@ private final class WorkoutCell: UICollectionViewCell{
         for _ in 0...4 {
             let label = UILabel()
             label.text = "· Push ups: 3 X 10"
-            label.textColor = .systemYellow
+            label.textColor = .white
             label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
             exercises.addArrangedSubview(label)
         }
