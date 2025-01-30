@@ -173,8 +173,6 @@ private final class WorkoutCell: UICollectionViewCell{
 }
 
 private class WorkoutCellContent: UIView{
-   
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
