@@ -12,15 +12,15 @@ final class CalendarDataSourceImpl: CalendarDataSource{
         let workout = Workout(context: context)
         workout.name = workoutModel.name
         workout.progressPercent = 0
-        workout.exercises = workoutModel.exercises.map {exerciseModel in
-            let exercise = Exercise(context: context)
-            exercise.name = exerciseModel.exerciseName
-            exercise.approashes = Int32(exerciseModel.approaches)
-            exercise.repeats = Int32(exerciseModel.repeats)
-            exercise.weight = exerciseModel.weight ?? 0.0
-            return exercise
-        }
         
+        for item in workoutModel.exercises {
+            let exercise = Exercise(context: context)
+            exercise.name = item.exerciseName
+            exercise.approashes = Int32(item.approaches)
+            exercise.repeats = Int32(item.repeats)
+            exercise.weight = item.weight ?? 0.0
+            workout.addToExercises(exercise)
+        }
         dataManager.saveContext()
     }
     

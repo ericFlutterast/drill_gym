@@ -69,9 +69,10 @@ extension CalendarViewController: UICalendarViewDelegate, UICalendarSelectionSin
         
         //MARK: - transition on create workout screen
         self.hidesBottomBarWhenPushed = true
-        navController.pushViewController(AddWorkoutOnCalendarViewController(), animated: true)
+        let addWorkoutOnCalendarWorkout = AddWorkoutOnCalendarViewController()
+        addWorkoutOnCalendarWorkout.selectedDate = dateComponents
+        navController.pushViewController(addWorkoutOnCalendarWorkout, animated: true)
         self.hidesBottomBarWhenPushed = false
-        
 //        if let dc = dateComponents
 //        {
 //            let day = DateComponents(

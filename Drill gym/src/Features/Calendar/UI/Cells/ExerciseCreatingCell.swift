@@ -1,7 +1,7 @@
 import UIKit
 
 class ExerciseCreatingCell: UITableViewCell{
-    var onSave: (((String, Int, Int, Int?) -> Void))?
+    var onSave: (((String, Int, Int, Float?) -> Void))?
     
     private lazy var hStack = {
         let stack = UIStackView()
@@ -78,7 +78,7 @@ class ExerciseCreatingCell: UITableViewCell{
             exerciseNameTextInput.text ?? "",
             Int(approachesTextInput.text ?? "0") ?? 0 ,
             Int(repeatsTextInput.text ?? "0") ?? 0,
-            weightTextInput.text != nil ? Int(weightTextInput.text!) : nil
+            weightTextInput.text != nil ? Float(weightTextInput.text!) : nil
         )
         self.endEditing(true)
     }

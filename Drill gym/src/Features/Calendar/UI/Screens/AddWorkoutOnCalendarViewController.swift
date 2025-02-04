@@ -1,6 +1,17 @@
 import UIKit
 
 class AddWorkoutOnCalendarViewController: UIViewController{
+    private var date: DateComponents?
+    private var calendarStateController = CalendarStateController(calendarDataSourse: CalendarDataSourceImpl(dataManager: DataManger.shared))
+    
+    var selectedDate: DateComponents?{
+        get{date}
+        set{
+            guard newValue != date else {return}
+            date = newValue
+        }
+    }
+    
     private lazy var collectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -16,6 +27,7 @@ class AddWorkoutOnCalendarViewController: UIViewController{
     override func loadView() {
         super.loadView()
         self.view = UIView()
+        calendarStateController.addEvent(event: .fetchWorkouts)
     }
     
     override func viewDidLoad() {
@@ -64,7 +76,9 @@ class AddWorkoutOnCalendarViewController: UIViewController{
         guard let navigationController = navigationController else{return}
         
         self.hidesBottomBarWhenPushed = true
-        navigationController.pushViewController(CreateWorkoutViewController(), animated: true)
+        let createWorkoutViewController = CreateWorkoutViewController()
+        createWorkoutViewController.selectedDate = date
+        navigationController.pushViewController(createWorkoutViewController, animated: true)
     }
     
     @objc private func backButton() {
@@ -75,7 +89,7 @@ class AddWorkoutOnCalendarViewController: UIViewController{
 
 extension AddWorkoutOnCalendarViewController: UICollectionViewDataSource{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        8
+        calendarStateController.calendarState.workouts?.count ?? 0 // Пересмотреть получение данных
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -84,7 +98,13 @@ extension AddWorkoutOnCalendarViewController: UICollectionViewDataSource{
         guard let cell = cell as? WorkoutCell else {
             return cell
         }
+        let workoutName = calendarStateController.calendarState.workouts![indexPath.row].name!
+        cell.setName(name: workoutName)
         
+        //Пересмотреть парсинг
+        let exercises = calendarStateController.calendarState.workouts![indexPath.row].exercises as? Set<Exercise>
+        let exerciseNames = exercises?.compactMap { $0.name }
+        cell.setExercises(exerciseNames: exerciseNames ?? [])
         return cell
     }
 }
@@ -111,7 +131,6 @@ private final class WorkoutCell: UICollectionViewCell{
     
     private lazy var title = {
         let lable = UILabel()
-        lable.text = NSLocalizedString("Workout if back", comment: "workout if back")
         lable.textColor = .white
         lable.translatesAutoresizingMaskIntoConstraints = false
         lable.textAlignment = .left
@@ -136,17 +155,7 @@ private final class WorkoutCell: UICollectionViewCell{
         self.backgroundColor = .clear
         addSubview(title)
         addSubview(divider)
-        
-        let exercises = vStack
-        
-        for _ in 0...4 {
-            let label = UILabel()
-            label.text = "· Push ups: 3 X 10"
-            label.textColor = .white
-            label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-            exercises.addArrangedSubview(label)
-        }
-        addSubview(exercises)
+        addSubview(vStack)
         
         NSLayoutConstraint.activate([
             title.topAnchor.constraint(equalTo: self.topAnchor, constant: 22),
@@ -154,10 +163,10 @@ private final class WorkoutCell: UICollectionViewCell{
             title.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -12),
             title.heightAnchor.constraint(equalToConstant: 24),
             
-            exercises.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 12),
-            exercises.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 24),
-            exercises.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -24),
-            exercises.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12)
+            vStack.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 12),
+            vStack.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 24),
+            vStack.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -24),
+            vStack.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12)
         ])
     }
     
@@ -169,6 +178,20 @@ private final class WorkoutCell: UICollectionViewCell{
         super.layoutSubviews()
         
         divider.frame = .init(x: 0, y: contentView.bounds.height, width: contentView.bounds.width, height: 1)
+    }
+    
+    func setName(name: String){
+        title.text = NSLocalizedString(name, comment: name)
+    }
+    
+    func setExercises(exerciseNames: [String]) {
+        for name in exerciseNames {
+            let label = UILabel()
+            label.text = name
+            label.textColor = .white
+            label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+            vStack.addArrangedSubview(label)
+        }
     }
 }
 

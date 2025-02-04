@@ -1,9 +1,8 @@
 import Foundation
 
-struct ExerciseModel: Identifiable{
-    var id: UUID
+struct ExerciseModel {
     let exerciseName: String
     let approaches: Int
     let repeats: Int
-    let weight: Int?
+    let weight: Float?
 }

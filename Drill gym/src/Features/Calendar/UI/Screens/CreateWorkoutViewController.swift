@@ -1,13 +1,24 @@
 import UIKit
 
 class CreateWorkoutViewController: UIViewController{
+    //MARK: FIELDS
     private enum CellIdentifier: String{
         case exersiceCreated
         case exersiceCreating
     }
-
+    
+    private var calendarStateControlle = CalendarStateController(calendarDataSourse: CalendarDataSourceImpl(dataManager: DataManger.shared))
     private var tableViewState: [ExerciseModel?] = []
     private var keyboardIsOpen: Bool = false
+    private var date: DateComponents?
+    
+    var selectedDate: DateComponents?{
+        get{date}
+        set{
+            guard newValue != date else {return}
+            date = newValue
+        }
+    }
     
     //MARK: VIEWS
     private lazy var saveButton = {
@@ -149,6 +160,7 @@ class CreateWorkoutViewController: UIViewController{
     
     //MARK: BUTTON HANDLERS
     @objc private func backButton() {
+        
         guard let navigationController = navigationController else{return}
         navigationController.popViewController(animated: true)
     }
@@ -156,6 +168,17 @@ class CreateWorkoutViewController: UIViewController{
     @objc private func saveWorkout() {
         print("Workout name: \(workoutNameTextField.text ?? "")")
         print(tableViewState)
+        print(date!)
+        
+        let exercises = tableViewState.compactMap{ $0 }
+        let currentDate = Calendar.current.date(from: date!)
+        let workout = WorkoutModel(
+            name: workoutNameTextField.text ?? "",
+            exercises: exercises,
+            date: currentDate!
+        )
+        calendarStateControlle.addEvent(event: .createWorkout(workout))
+        
         guard let navigationController = navigationController else {return}
         navigationController.popToRootViewController(animated: true)
     }
@@ -230,7 +253,6 @@ extension CreateWorkoutViewController: UITableViewDataSource{
         let cell = ExerciseCreatingCell();
         cell.onSave = {(name, approaches, repeats, weight) in
             self.tableViewState[indexPath.row] = ExerciseModel(
-                id: UUID(),
                 exerciseName: name,
                 approaches:  approaches,
                 repeats: repeats,
