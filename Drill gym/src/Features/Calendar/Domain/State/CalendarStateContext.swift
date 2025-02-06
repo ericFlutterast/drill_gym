@@ -6,7 +6,7 @@ enum CalendarStateControllerEvents{
     case fetchCalendarWorkouts
 }
 
-final class CalendarStateController{
+final class CalendarStateContext{
     let logger = Logger()
     private let state: CalendarState
     var calendarState: CalendarState {state}
@@ -33,8 +33,7 @@ final class CalendarStateController{
             try calendarDataSource.createWorkout(workout: workout)
         }catch{
             logger.error("createWorkout error: \(error)")
-            //Залогировать ошибку
-            //добавить в состояние ошибку
+            state.error = error
         }
     }
     
@@ -44,8 +43,7 @@ final class CalendarStateController{
             state.workouts = result
         }catch{
             logger.error("fetchWorkouts: \(error)")
-            //Залогировать ошибку
-            //добавить в состояние ошибку
+            state.error = error
         }
     }
     
@@ -55,8 +53,7 @@ final class CalendarStateController{
             print(result)
         }catch{
             logger.error("fetchCalendarWorkouts: \(error)")
-            //Залогировать ошибку
-            //добавить в состояние ошибку
+            state.error = error
         }
     }
 }
