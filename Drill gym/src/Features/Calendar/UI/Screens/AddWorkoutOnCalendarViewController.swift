@@ -2,15 +2,7 @@ import UIKit
 
 class AddWorkoutOnCalendarViewController: UIViewController{
     private var date: DateComponents?
-    private var calendarStateController = CalendarStateController(calendarDataSourse: CalendarDataSourceImpl(dataManager: DataManger.shared))
-    
-    var selectedDate: DateComponents?{
-        get{date}
-        set{
-            guard newValue != date else {return}
-            date = newValue
-        }
-    }
+    private let calendarStateContext: StateContext<CalendarState, CalendarStateContextEvents>
     
     private lazy var collectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -24,10 +16,27 @@ class AddWorkoutOnCalendarViewController: UIViewController{
         return view
     }()
     
+    var selectedDate: DateComponents?{
+        get{date}
+        set{
+            guard newValue != date else {return}
+            date = newValue
+        }
+    }
+    
+    init(calendarStateContext: StateContext<CalendarState, CalendarStateContextEvents>) {
+                self.calendarStateContext = calendarStateContext
+                super.init(nibName: nil, bundle: nil)
+            }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func loadView() {
         super.loadView()
         self.view = UIView()
-        calendarStateController.addEvent(event: .fetchWorkouts)
+        calendarStateContext.add(event: .fetchWorkouts)
     }
     
     override func viewDidLoad() {
@@ -76,7 +85,7 @@ class AddWorkoutOnCalendarViewController: UIViewController{
         guard let navigationController = navigationController else{return}
         
         self.hidesBottomBarWhenPushed = true
-        let createWorkoutViewController = CreateWorkoutViewController()
+        guard let createWorkoutViewController = AppNavigation.getRout(path: .createWorkout) as? CreateWorkoutViewController else{return}
         createWorkoutViewController.selectedDate = date
         navigationController.pushViewController(createWorkoutViewController, animated: true)
     }
@@ -89,7 +98,7 @@ class AddWorkoutOnCalendarViewController: UIViewController{
 
 extension AddWorkoutOnCalendarViewController: UICollectionViewDataSource{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        calendarStateController.calendarState.workouts?.count ?? 0 // Пересмотреть получение данных
+        calendarStateContext.state.workouts?.count ?? 0 // Пересмотреть получение данных
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -98,11 +107,11 @@ extension AddWorkoutOnCalendarViewController: UICollectionViewDataSource{
         guard let cell = cell as? WorkoutCell else {
             return cell
         }
-        let workoutName = calendarStateController.calendarState.workouts![indexPath.row].name!
+        let workoutName = calendarStateContext.state.workouts![indexPath.row].name!
         cell.setName(name: workoutName)
         
         //Пересмотреть парсинг
-        let exercises = calendarStateController.calendarState.workouts![indexPath.row].exercises as? Set<Exercise>
+        let exercises = calendarStateContext.state.workouts![indexPath.row].exercises as? Set<Exercise>
         let exerciseNames = exercises?.compactMap { $0.name }
         cell.setExercises(exerciseNames: exerciseNames ?? [])
         return cell

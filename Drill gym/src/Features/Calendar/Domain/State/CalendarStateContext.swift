@@ -1,31 +1,31 @@
 import os
+import Combine
 
-enum CalendarStateControllerEvents{
+//Events для вызова различных методов
+enum CalendarStateContextEvents{
     case createWorkout(WorkoutModel)
     case fetchWorkouts
     case fetchCalendarWorkouts
 }
 
-final class CalendarStateContext{
-    let logger = Logger()
-    private let state: CalendarState
-    var calendarState: CalendarState {state}
-    private let calendarDataSource: CalendarDataSource
-    
+final class CalendarStateContext: StateContext<CalendarState, CalendarStateContextEvents>{
+    private var calendarDataSource: CalendarDataSource
+
     init(calendarDataSourse: CalendarDataSource) {
-        self.state = CalendarState()
         self.calendarDataSource = calendarDataSourse
-    }
-    
-    func addEvent(event: CalendarStateControllerEvents) {
-        switch event {
-        case .createWorkout(let workout):
-            createWorkout(workout: workout)
-        case .fetchWorkouts:
-            fetchWorkouts()
-        case .fetchCalendarWorkouts:
-            fetchCalendarWorkouts()
-        }
+        super.init(state: CalendarState())
+        
+        on { event in
+            switch event {
+            case .createWorkout(let workout):
+                self.createWorkout(workout: workout)
+            case .fetchWorkouts:
+                self.fetchWorkouts()
+            case .fetchCalendarWorkouts:
+                self.fetchCalendarWorkouts()
+            case .none:
+                logger.info("create event publisher")
+            }}
     }
     
     private func createWorkout(workout: WorkoutModel) {
@@ -41,6 +41,7 @@ final class CalendarStateContext{
         do{
             let result = try calendarDataSource.fetchWorkouts()
             state.workouts = result
+            set(state: state)
         }catch{
             logger.error("fetchWorkouts: \(error)")
             state.error = error
@@ -50,11 +51,13 @@ final class CalendarStateContext{
     private func fetchCalendarWorkouts() {
         do{
             let result = try calendarDataSource.fetchCalendarWorkouts()
-            print(result)
+            state.workoutsDates = result
+            set(state: self.state)
         }catch{
             logger.error("fetchCalendarWorkouts: \(error)")
             state.error = error
         }
     }
 }
+
 

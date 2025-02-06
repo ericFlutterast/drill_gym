@@ -9,9 +9,15 @@ final class CalendarDataSourceImpl: CalendarDataSource{
     
     func createWorkout(workout workoutModel: WorkoutModel) throws {
         let context = dataManager.persistentContainer.viewContext
+        
+        let calendarWorkout = CalendarWorkout(context: context)
+        calendarWorkout.date = workoutModel.date
+        
+
         let workout = Workout(context: context)
         workout.name = workoutModel.name
         workout.progressPercent = 0
+        workout.calendarWorkout = calendarWorkout
         
         for item in workoutModel.exercises {
             let exercise = Exercise(context: context)

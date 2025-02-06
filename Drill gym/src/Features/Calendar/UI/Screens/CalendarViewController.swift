@@ -1,7 +1,12 @@
 import UIKit
+import Combine
 
 class CalendarViewController: UIViewController{
-    private var selectDates = [Date?: UICalendarView.Decoration]()
+    private var datesWithWorkouts = [Date?: UICalendarView.Decoration]()
+    
+    private var calendarStateContext = CalendarStateContext(calendarDataSourse: CalendarDataSourceImpl(dataManager: DataManger.shared))
+    
+    private var calendarContextCancellable: AnyCancellable?
     
     private lazy var calendarView = {
         let calendarView = UICalendarView()
@@ -19,15 +24,46 @@ class CalendarViewController: UIViewController{
         return calendarView
     } ()
     
+    deinit{
+        calendarContextCancellable?.cancel()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        calendarStateContext.add(event: .fetchCalendarWorkouts)
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemGray
         
         configurateController()
+        calendarContextCancellable = calendarStateContext.publisher.sink { state in
+            self.decorateCalendar(from: state.workoutsDates ?? [])
+        }
     }
     
     @objc private func addWorkoutHandler() {
         print("tapped")
+    }
+    
+    private func decorateCalendar(from dates: [CalendarWorkout]) {
+        var dateComponents: [DateComponents] = []
+        for item in dates{
+            let dc = Calendar.current.dateComponents([.calendar, .year, .month, .day], from: item.date ?? Date())
+            
+            datesWithWorkouts[dc.date] = UICalendarView.Decoration.customView{
+                let label = UILabel()
+                label.text = "🏋️"
+                return label
+            }
+            dateComponents.append(dc)
+        }
+        
+        calendarView.reloadDecorations(
+            forDateComponents: dateComponents,
+            animated: true
+        )
     }
     
     private func configurateController() {
@@ -40,54 +76,27 @@ class CalendarViewController: UIViewController{
             calendarView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100),
         ])
     }
-    
-    private func add(decoration: UICalendarView.Decoration, on date: Date) {
-        let dateComponents = Calendar.current.dateComponents(
-                [.calendar, .year, .month, .day ],
-                from: date
-            )
-        
-        if selectDates.keys.contains(dateComponents.date){
-            selectDates.removeValue(forKey: dateComponents.date)
-        }else{
-            selectDates[dateComponents.date] = decoration
-        }
-
-        calendarView.reloadDecorations(
-            forDateComponents: [dateComponents],
-            animated: true
-        )
-          
-    }
 }
 
 extension CalendarViewController: UICalendarViewDelegate, UICalendarSelectionSingleDateDelegate{
     func dateSelection(_ selection: UICalendarSelectionSingleDate, didSelectDate dateComponents: DateComponents?) {
-        guard let navController = navigationController else{
+        guard let navController = navigationController,
+              !datesWithWorkouts.keys.contains(dateComponents?.date)
+        else{
+            print("В этот день уже есть тренировка \(String(describing: dateComponents?.date))")
             return
         }
         
-        //MARK: - transition on create workout screen
         self.hidesBottomBarWhenPushed = true
-        let addWorkoutOnCalendarWorkout = AddWorkoutOnCalendarViewController()
-        addWorkoutOnCalendarWorkout.selectedDate = dateComponents
+        
+        guard let addWorkoutOnCalendarWorkout = AppNavigation.getRout(path: .addWorkout) as? AddWorkoutOnCalendarViewController,
+              let dc = dateComponents
+        else {return}
+        
+        addWorkoutOnCalendarWorkout.selectedDate = dc
         navController.pushViewController(addWorkoutOnCalendarWorkout, animated: true)
+        
         self.hidesBottomBarWhenPushed = false
-//        if let dc = dateComponents
-//        {
-//            let day = DateComponents(
-//                calendar: dc.calendar,
-//                year: dc.year,
-//                month: dc.month,
-//                day: dc.day
-//            )
-//            
-//            add(decoration: UICalendarView.Decoration.customView{
-//                let label = UILabel()
-//                label.text = "🏋️"
-//                return label
-//            }, on: day.date!)
-//        }
     }
     
     func dateSelection(_ selection: UICalendarSelectionSingleDate, canSelectDate dateComponents: DateComponents?) -> Bool {
@@ -104,6 +113,6 @@ extension CalendarViewController: UICalendarViewDelegate, UICalendarSelectionSin
             day: dateComponents.day
         )
         
-        return selectDates[day.date]
+        return datesWithWorkouts[day.date]
     }
 }

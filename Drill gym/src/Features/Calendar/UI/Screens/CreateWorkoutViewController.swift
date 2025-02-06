@@ -7,7 +7,7 @@ class CreateWorkoutViewController: UIViewController{
         case exersiceCreating
     }
     
-    private var calendarStateControlle = CalendarStateController(calendarDataSourse: CalendarDataSourceImpl(dataManager: DataManger.shared))
+    private var calendarStateControlle = CalendarStateContext(calendarDataSourse: CalendarDataSourceImpl(dataManager: DataManger.shared))
     private var tableViewState: [ExerciseModel?] = []
     private var keyboardIsOpen: Bool = false
     private var date: DateComponents?
@@ -177,7 +177,7 @@ class CreateWorkoutViewController: UIViewController{
             exercises: exercises,
             date: currentDate!
         )
-        calendarStateControlle.addEvent(event: .createWorkout(workout))
+        calendarStateControlle.add(event: .createWorkout(workout))
         
         guard let navigationController = navigationController else {return}
         navigationController.popToRootViewController(animated: true)
