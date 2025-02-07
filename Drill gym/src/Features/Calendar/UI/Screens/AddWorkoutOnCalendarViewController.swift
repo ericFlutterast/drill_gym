@@ -1,6 +1,6 @@
 import UIKit
 
-class AddWorkoutOnCalendarViewController: UIViewController{
+final class AddWorkoutOnCalendarViewController: UIViewController{
     private var date: DateComponents?
     private let calendarStateContext: StateContext<CalendarState, CalendarStateContextEvents>
     
@@ -85,7 +85,7 @@ class AddWorkoutOnCalendarViewController: UIViewController{
         guard let navigationController = navigationController else{return}
         
         self.hidesBottomBarWhenPushed = true
-        guard let createWorkoutViewController = AppNavigation.getRout(path: .createWorkout) as? CreateWorkoutViewController else{return}
+        let createWorkoutViewController = CreateWorkoutViewController()
         createWorkoutViewController.selectedDate = date
         navigationController.pushViewController(createWorkoutViewController, animated: true)
     }
@@ -203,15 +203,4 @@ private final class WorkoutCell: UICollectionViewCell{
         }
     }
 }
-
-private class WorkoutCellContent: UIView{
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("has not been implemented")
-    }
-}
-
 

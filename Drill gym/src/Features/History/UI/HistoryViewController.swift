@@ -40,7 +40,7 @@ class HistoryViewController: UIViewController{
         }
 
         self.hidesBottomBarWhenPushed = true
-        navigationController.pushViewController(WorkoutDetailViewController() , animated: true)
+        navigationController.pushViewController(WorkoutDetailViewController(workoutDetailStateContext: Dependencies.shared.workoutDetailStateContext) , animated: true)
         self.hidesBottomBarWhenPushed = false
     }
 }

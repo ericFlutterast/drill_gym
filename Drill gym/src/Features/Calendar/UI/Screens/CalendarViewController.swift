@@ -80,22 +80,23 @@ class CalendarViewController: UIViewController{
 
 extension CalendarViewController: UICalendarViewDelegate, UICalendarSelectionSingleDateDelegate{
     func dateSelection(_ selection: UICalendarSelectionSingleDate, didSelectDate dateComponents: DateComponents?) {
-        guard let navController = navigationController,
-              !datesWithWorkouts.keys.contains(dateComponents?.date)
+        guard let navController = navigationController
         else{
-            print("В этот день уже есть тренировка \(String(describing: dateComponents?.date))")
             return
         }
         
         self.hidesBottomBarWhenPushed = true
-        
-        guard let addWorkoutOnCalendarWorkout = AppNavigation.getRout(path: .addWorkout) as? AddWorkoutOnCalendarViewController,
-              let dc = dateComponents
-        else {return}
-        
-        addWorkoutOnCalendarWorkout.selectedDate = dc
-        navController.pushViewController(addWorkoutOnCalendarWorkout, animated: true)
-        
+        if datesWithWorkouts.keys.contains(dateComponents?.date) {
+            let workoutDetail = WorkoutDetailViewController(workoutDetailStateContext: Dependencies.shared.workoutDetailStateContext)
+            workoutDetail.selectedDate = dateComponents?.date
+            navController.pushViewController(workoutDetail, animated: true)
+        }else{
+            let addWorkoutOnCalendarWorkout = AddWorkoutOnCalendarViewController(calendarStateContext: Dependencies.shared.calendarStateContext)
+            guard let dc = dateComponents
+            else {return}
+            addWorkoutOnCalendarWorkout.selectedDate = dc
+            navController.pushViewController(addWorkoutOnCalendarWorkout, animated: true)
+        }
         self.hidesBottomBarWhenPushed = false
     }
     

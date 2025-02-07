@@ -8,9 +8,9 @@ class TabBarController: UITabBarController{
     }
     
     private func configurateTabBar() {
-        let home = AppNavigation.getRout(path: .home)
-        let calendar = AppNavigation.getRout(path: .calendar)
-        let history = AppNavigation.getRout(path: .history)
+        let home = HomeViewController()
+        let calendar = CalendarViewController()
+        let history = HistoryViewController()
         
         home.tabBarItem.title = NSLocalizedString("Home", comment: "Home screen")
         home.tabBarItem.image = UIImage(systemName: "house.fill")

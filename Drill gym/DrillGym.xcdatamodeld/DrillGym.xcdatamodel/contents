@@ -3,7 +3,7 @@
     <entity name="CalendarWorkout" representedClassName="CalendarWorkout" syncable="YES">
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="status" optional="YES" attributeType="String"/>
-        <relationship name="calendarWorkout" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Workout" inverseName="calendarWorkout" inverseEntity="Workout"/>
+        <relationship name="calendarWorkout" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Workout" inverseName="calendarWorkout" inverseEntity="Workout"/>
     </entity>
     <entity name="Exercise" representedClassName="Exercise" syncable="YES">
         <attribute name="approashes" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
