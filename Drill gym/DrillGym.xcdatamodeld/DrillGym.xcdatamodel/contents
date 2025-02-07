@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="23F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="CalendarWorkout" representedClassName="CalendarWorkout" syncable="YES">
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
+        <relationship name="calendarWorkout" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Workout" inverseName="calendarWorkout" inverseEntity="Workout"/>
+    </entity>
+    <entity name="Exercise" representedClassName="Exercise" syncable="YES">
+        <attribute name="approashes" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="progressPercent" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="repeats" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="weight" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="workout" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Workout" inverseName="exercises" inverseEntity="Workout"/>
+    </entity>
+    <entity name="Workout" representedClassName="Workout" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="progressPercent" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="target" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <relationship name="calendarWorkout" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CalendarWorkout" inverseName="calendarWorkout" inverseEntity="CalendarWorkout"/>
+        <relationship name="exercises" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Exercise" inverseName="workout" inverseEntity="Exercise"/>
+    </entity>
+    <entity name="WorkoutExercise" representedClassName="WorkoutExercise" syncable="YES" codeGenerationType="class"/>
+</model>
